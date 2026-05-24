@@ -9,9 +9,9 @@ const MATCH_ID = import.meta.env.VITE_SUPABASE_MATCH_ID || ''
 // placeholder match data
 const initialMatch = {
   id: null,
-  team1_name: 'Home United',
-  team2_name: 'Away Rangers',
-  status: 'First Half',
+  team1_name: 'Moonee Valley Knights',
+  team2_name: 'Essendon Royals',
+  status: 'Kickoff Pending',
   started_at: null,
 }
 
@@ -40,6 +40,7 @@ function Timer({ startedAt }) {
 // main React component
 function App() {
   const [match, setMatch] = useState(initialMatch)
+  // match fields to include: season, age_group, round_number, venue, pitch_number
   const [goals, setGoals] = useState([])
   const [participants, setParticipants] = useState([])
   const [loading, setLoading] = useState(true)
@@ -135,12 +136,12 @@ useEffect(() => {
 
       <section className="scoreboard">
         <div className="scoreboard-panel">
-          <div className="team">{match.team1_name}</div>
+          <div className="team">{/*<span className="team-suburb">{match.team1_suburb}</span>*/}{match.team1_name}</div>
           <div className="timer">
             {match.started_at ? ( <Timer startedAt={match.started_at} />)
             : ('00:00')}
           </div>
-          <div className="team">{match.team2_name}</div>
+          <div className="team">{/*<span className="team-suburb">{match.team2_suburb}</span>*/}{match.team2_name}</div>
           <div className="score">{score.team1}</div>
           <div className="status">{match.status}</div>
           <div className="score">{score.team2}</div>
@@ -149,28 +150,35 @@ useEffect(() => {
 
       <section className="game-info">
         <div className="game-info-panel">
-          <p className="game-info-panel text-left">WINTER SEASON (U12 _____)</p>
-          <p className="game-info-panel text-right">ROUND #</p>
+          <p className="game-info-panel text-left">{match.season ?? "Season"}</p>
+          <p className="game-info-panel text-right">{match.round_number ?? "Round #"}</p>
         </div>
         <div className="game-info-panel">
-          <p className="game-info-panel text-left">Suburb Recreation Reserve</p>
-          <p className="game-info-panel text-right">Pitch #</p>
+          <p className="game-info-panel text-left">{match.venue ?? "Venue"}</p>
+          <p className="game-info-panel text-right">{match.pitch_number ?? "Pitch #"}</p>
         </div>
       </section>
-        
+
+{/* shape of goal data to be roughly 
+{
+  id, (datestamp_#)
+  team,
+  player_name,
+  minute,
+  second,
+  player_number
+}
+*/}
+
       <h3 className="section-title">Goal Summary</h3>
       <section className="goal-summary">
         <div className="goal-summary-panel">
           <div classname="goal-summary-column">
-            <div className="text-left">1'00" (#) Mia H</div>
-            <div className="text-left">2'01" (#) Milana S</div>
-            <div className="text-left">3'02" (#) Zoe V</div>
+            <div className="text-left"></div>
           </div>
 
           <div classname="goal-summary-column">
-            <div className="text-right">Jane D (#) 1'03"</div>
-            <div className="text-right">Pia Z (#) 2'04"</div>
-            <div className="text-right">Cara Y (#) 3'05"</div>
+            <div className="text-right"></div>
           </div>
         </div>
       </section>
@@ -178,36 +186,18 @@ useEffect(() => {
       <h3 className="section-title">Participating Players</h3>
       <section className="players-section">
         <div className="players-section-panel">
-          <div className="home-players">1</div>
-          <div className="home-players">2</div>
-          <div className="home-players">3</div>
-          <div className="home-players">4</div>
-          <div className="home-players">5</div>
-          <div className="home-players">6</div>
-          <div className="home-players">7</div>
-          <div className="home-players">8</div>
-          <div className="home-players">9</div>
-          <div className="home-players">10</div>
-          <div className="home-players">11</div>
-          <div className="home-players">12</div>
-          <div className="home-players">13</div>
-          <div className="home-players">14</div>
+          {team1Players.map(p => (
+            <div key={p.id} className="home-players">
+              {p.player_number}
+            </div>
+          ))}
         </div>
         <div className="players-section-panel">
-          <div className="away-players">1</div>
-          <div className="away-players">2</div>
-          <div className="away-players">3</div>
-          <div className="away-players">4</div>
-          <div className="away-players">5</div>
-          <div className="away-players">6</div>
-          <div className="away-players">7</div>
-          <div className="away-players">8</div>
-          <div className="away-players">9</div>
-          <div className="away-players">10</div>
-          <div className="away-players">11</div>
-          <div className="away-players">12</div>
-          <div className="away-players">13</div>
-          <div className="away-players">14</div>
+          {team2Players.map(p => (
+            <div key={p.id} className="away-players">
+              {p.player_number}
+            </div>
+          ))}
         </div>
       </section>
 
