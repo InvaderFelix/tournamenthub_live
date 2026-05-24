@@ -1,0 +1,230 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+}
+
+.scoreboard {
+    flex: 0 0 auto;
+    margin-top: 4px;
+    display: grid;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.section-title {
+    text-align: center;
+    color: var(--text-muted);
+    margin: 1px;
+}
+
+.scoreboard-panel {
+    display: grid;
+    grid-template-columns: 40% 20% 40%;
+    grid-template-rows: minmax(4em, auto) minmax(4em, auto);
+    border: 2px solid var(--border-strong);
+    border-radius: 12px;
+    gap: 1px;
+    padding: 8px;
+    justify-items: center;
+}
+
+.goal-panel {
+    border: 2px solid var(--border-strong);
+    margin-top: 4px;
+}
+
+.scoreboard-panel .timer {
+    align-self: end;
+    text-align: center;
+    font-family: 'Bebas Neue', 'Impact', 'Arial Black', sans-serif;
+    font-size: clamp(2rem, 7vw, 4rem);
+    letter-spacing: 0.08em;
+    color: var(--accent-color);
+}
+
+.scoreboard-panel .team {
+    width: 90%;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    padding: 0.4rem 0.1rem;
+    border: 2px dashed var(--border-soft);
+    border-radius: 4px;
+    background: var(--panel-bg);
+    color: var(--text-muted);
+}
+
+.scoreboard-panel .score {
+    font-size: clamp(4rem, 30cqw, 9rem);
+    line-height: 0.7; /* collapse the padding around massive glyphs */
+    font-family: 'Bebas Neue', 'Impact', 'Arial Black', sans-serif;
+    text-shadow:
+        0 0 6px var(--score-glow),
+        0 0 14px var(--score-glow),
+        0 0 24px var(--score-glow);
+}
+
+.scoreboard-panel .status {
+    align-self: end;
+    text-transform: uppercase;
+    text-align: center;
+    font-family: 'Orbitron', 'Eurostile', 'Rajdhani', sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 0.5rem 0rem;
+    line-height: 0.95;
+}
+
+.game-info {
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+.game-info-panel {
+    color: var(--text-muted);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding: 0.1em 0.4rem;
+    margin: 0;
+}
+
+.goal-summary {
+    flex: 0 0 auto;
+    border: 2px solid var(--border-strong);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.goal-summary-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0.4em 0.6rem;
+}
+
+.goal-summary-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.players-section {
+    flex: 1 1 auto; /* allow expand/shrink while taking remaining space */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 0;
+    gap: 2px;
+}
+
+.players-section-panel {
+    border: 2px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 0.4em 0.6rem;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* TODO: ADD COLOUR CHANGE FOR HOME/AWAY TEAMS IN PLAYERS PANEL */
+/* .players-section .home {
+
+}
+
+.players-section .away {
+
+} */
+
+/* BEGIN: Slider component */
+
+.switch {
+    display: inline-flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+    width: 110px; /* minimum width to accommodate label and track */
+    padding: 6px 10px;
+    border: 1px solid var(--accent-color);
+    border-radius: 999px;
+    background: var(--panel-bg);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.switch-label {
+    order: 0;
+    width: 60px; /* minimum width to accommodate "light" and "dark" text */
+    font-size: 14px;
+    user-select: none;
+    color: var(--text-primary);
+    opacity: 0.85;
+}
+
+.switch-track {
+    order: 1; /* ordering to push switch-label behind track */
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--accent-color);
+    position: relative;
+    transition: background 0.5s ease-in;
+    flex-shrink: 0;
+}
+
+.switch.on .switch-track {
+    background: var(--accent-color);
+}
+
+.switch-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--panel-bg);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switch.on .switch-thumb {
+    transform: translateX(20px);
+}
+
+/* END: Slider component */
+
+.hamburger-btn {
+  width: 2.5rem;
+  height: 1.8rem;
+  border: 2px solid var(--border-strong);
+  border-radius: 0.6rem;
+  background: var(--panel-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
+  cursor: pointer;
+}
+
+.hamburger-btn span {
+  width: 1.2rem;
+  height: 3px;
+  background: var(--text-primary);
+}

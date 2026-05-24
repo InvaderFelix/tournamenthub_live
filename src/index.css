@@ -1,0 +1,69 @@
+:root {
+  --bg-main: #f0f3ee;
+  --panel-bg: #ffffff;
+  --drawer-bg: #eef3ec;
+  --input-bg: #ffffff;
+  --text-primary: #152018;
+  --text-muted: #57675d;
+  --border-soft: #d7dfd4;
+  --border-strong: #b5c4ba;
+  --accent-color: #35684d;
+  --score-color: #173f33;
+  --score-glow: rgb(23 63 51 / 16%);
+  --danger: #dc3545;
+
+  font-family: 'Trebuchet MS', 'Gill Sans', 'Segoe UI', sans-serif;
+  line-height: 1.35;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background: var(--bg-main);
+}
+
+:root[data-theme='dark'] {
+  --bg-main: #080808;
+  --panel-bg: #111111;
+  --drawer-bg: #151515;
+  --input-bg: #1a1a1a;
+  --text-primary: #f4f0e3;
+  --text-muted: #c7b993;
+  --border-soft: #52472e;
+  --border-strong: #7f6b35;
+  --accent-color: #ab8f47;
+  --score-color: #d6bf7f;
+  --score-glow: rgb(171 143 71 / 38%);
+  --danger: #dc3545;
+
+  background:
+    radial-gradient(circle at 14% 8%, rgb(171 143 71 / 12%), transparent 36%),
+    radial-gradient(circle at 82% 88%, rgb(171 143 71 / 9%), transparent 34%),
+    var(--bg-main);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100vw;
+  height: 100dvh;
+  font-size: 16px;
+  overflow: hidden;
+  position: fixed; /* critical for mobile /AM */
+}
+
+body {
+  color: var(--text-primary);
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
