@@ -1,46 +1,34 @@
-import { useEffect, useState } from 'react'
-import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates } from './lib/api'
-import { computeScore, formatLatestGoal, formatStartedAt } from './lib/gameLogic'
-import { AdminDrawer } from './AdminDrawer'
 import './App.css'
+import { useEffect, useState } from 'react'
+import { supabase } from './lib/supabaseClient'
 
-const MATCH_ID = import.meta.env.VITE_SUPABASE_MATCH_ID || ''
+import { Timer } from './lib/Timer'
+// import { AdminDrawer } from './AdminDrawer'
+import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates } from './lib/api'
+import { computeScore, formatLatestGoal, getElapsedMs, formatClock } from './lib/gameLogic'
 
 // placeholder match data
 const initialMatch = {
   id: null,
-  team1_name: 'Moonee Valley Knights',
-  team2_name: 'Essendon Royals',
-  status: 'Kickoff Pending',
+  team1_name: 'Home United',
+  team2_name: 'Away Rangers',
+  status: 'Pending',
   started_at: null,
+  season: 'Season Zero',
+  round_number: '1',
+  venue: 'Venue Stadium',
+  pitch_number: '2',
+  game_times: '1200-1300',
+  is_paused: false,
+  half_time_started_at: null,
+  team1_uniform_colour: 'Red/Gold',
+  team2_uniform_colour: 'Blue/White',
 }
 
-// timer logic
-function Timer({ startedAt }) {
-  const [now, setNow] = useState(Date.now())
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Date.now())
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  if (!startedAt) return '00:00'
-  
-  const startMs = new Date(startedAt).getTime()
-  const elapsedMs = now - startMs
-  const minutes = String(Math.floor(elapsedMs / 60000)).padStart(2, '0')
-  const seconds = String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0')
-
-  return `${minutes}:${seconds}`
-}
-  
 // main React component
 function App() {
-  const [match, setMatch] = useState(initialMatch)
-  // match fields to include: season, age_group, round_number, venue, pitch_number
+  const [matchId, setMatchId] = useState('replace-with-match-id') // hardcoded for demo
+  const [match, setMatch] = useState(initialMatch) // refer to object shape above
   const [goals, setGoals] = useState([])
   const [participants, setParticipants] = useState([])
   const [loading, setLoading] = useState(true)
@@ -55,8 +43,8 @@ useEffect(() => {
 
 // data fetching on mount + cleanup
 useEffect(() => {
-  if (!MATCH_ID || MATCH_ID === 'replace-with-match-id') {
-    setError('Set VITE_SUPABASE_MATCH_ID in .env to the active match id.')
+  if (!matchId || matchId === 'replace-with-match-id') {
+    setError('Inactive match ID')
     setLoading(false)
     return
   }
@@ -64,12 +52,15 @@ useEffect(() => {
   let isMounted = true
   async function loadInitialData() {
     const [matchData, goalsData, participantsData] = await Promise.all([
-      fetchMatch(),
-      fetchGoals(),
-      fetchParticipants(),
+      fetchMatch(matchId),
+      fetchGoals(matchId),
+      fetchParticipants(matchId),
     ])
-    
+   
     if (!isMounted) return
+    // acceptable because lifecycle is single-mount and match with no re-entry...
+    // replace if matchId can change, component can remount frequently,
+    // or if concurrent fetches exist! /AM
 
     if (matchData) {
       setMatch(matchData)
@@ -82,13 +73,14 @@ useEffect(() => {
 
   loadInitialData()
   const unsubscribe = subscribeToUpdates(
+    matchId,
     async () => {
-      const goalsData = await fetchGoals()
+      const goalsData = await fetchGoals(matchId)
       if (isMounted) setGoals(goalsData)
     },
     (payload) => {
-      if (payload.new && isMounted) {
-        setMatch(payload.new)
+      if (payload.new) {
+        setMatch(prev => ({ ...prev, ...payload.new }))
       }
     }
   )
@@ -138,8 +130,9 @@ useEffect(() => {
         <div className="scoreboard-panel">
           <div className="team">{/*<span className="team-suburb">{match.team1_suburb}</span>*/}{match.team1_name}</div>
           <div className="timer">
-            {match.started_at ? ( <Timer startedAt={match.started_at} />)
-            : ('00:00')}
+            {match.started_at ? (
+              <Timer match={match} />
+            ) : ( '00:00' )}
           </div>
           <div className="team">{/*<span className="team-suburb">{match.team2_suburb}</span>*/}{match.team2_name}</div>
           <div className="score">{score.team1}</div>
@@ -150,34 +143,27 @@ useEffect(() => {
 
       <section className="game-info">
         <div className="game-info-panel">
-          <p className="game-info-panel text-left">{match.season ?? "Season"}</p>
-          <p className="game-info-panel text-right">{match.round_number ?? "Round #"}</p>
+          <p className="game-info-panel text-left">{match.season}</p>
+          <p className="game-info-panel text-right">Round {match.round_number}</p>
         </div>
         <div className="game-info-panel">
-          <p className="game-info-panel text-left">{match.venue ?? "Venue"}</p>
-          <p className="game-info-panel text-right">{match.pitch_number ?? "Pitch #"}</p>
+          <p className="game-info-panel text-left">{match.venue}</p>
+          <p className="game-info-panel text-right">Pitch {match.pitch_number}</p>
+        </div>
+        <div className="game-info-panel">
+          <p className="game-info-panel text-left">Game Time: {match.game_times}</p>
+          <p className="game-info-panel text-right">{match.team1_uniform_colour} Jersey</p>
         </div>
       </section>
-
-{/* shape of goal data to be roughly 
-{
-  id, (datestamp_#)
-  team,
-  player_name,
-  minute,
-  second,
-  player_number
-}
-*/}
 
       <h3 className="section-title">Goal Summary</h3>
       <section className="goal-summary">
         <div className="goal-summary-panel">
-          <div classname="goal-summary-column">
+          <div className="goal-summary-column">
             <div className="text-left"></div>
           </div>
 
-          <div classname="goal-summary-column">
+          <div className="goal-summary-column">
             <div className="text-right"></div>
           </div>
         </div>
@@ -188,20 +174,19 @@ useEffect(() => {
         <div className="players-section-panel">
           {team1Players.map(p => (
             <div key={p.id} className="home-players">
-              {p.player_number}
+              {p.jersey_number} {p.name}
             </div>
           ))}
         </div>
         <div className="players-section-panel">
           {team2Players.map(p => (
             <div key={p.id} className="away-players">
-              {p.player_number}
+              {p.jersey_number} {p.name}
             </div>
           ))}
         </div>
       </section>
 
-      {/* <AdminDrawer match={match} goals={goals} isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} /> */}
     </main>
   )
 }

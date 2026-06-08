@@ -1,94 +1,95 @@
+// API functions for fetching and updating match data from Supabase
+
 import { supabase } from './supabaseClient'
 
-const MATCH_ID = import.meta.env.VITE_SUPABASE_MATCH_ID || ''
+// Read queries
+// Note that game_status exists as ENUM ('pending', 'first_half', etc...) in the database
 
-export async function fetchMatch() {
+export async function fetchMatch(matchId) {
+  if (!matchId) return null
+
   const { data, error } = await supabase
     .from('matches')
-    .select('id,team1_name,team2_name,status,started_at')
-    .eq('id', MATCH_ID)
+    .select(`
+      id,
+      team_1_name,
+      team_2_name,
+      game_status,
+      game_schedule,
+      started_at,
+      paused_at,
+      paused_total_ms,
+      restarted_at,
+      finished_at,
+      season_name,
+      round_number,
+      venue_name,
+      pitch_number,
+      team_1_uniform_colour,
+      team_2_uniform_colour
+    `)
+    .eq('id', matchId)
     .maybeSingle()
 
   if (error) {
+    console.error('fetchMatch error:', error)
     return null
   }
 
-  return data
+  return data ?? null
 }
 
-export async function fetchGoals() {
+export async function fetchGoals(matchId) {
+  if (!matchId) return []
+
   const { data, error } = await supabase
     .from('goals')
-    .select('id,team,player_name,player_number,minute,created_at')
-    .eq('match_id', MATCH_ID)
+    .select('*')
+    .eq('match_id', matchId)
     .order('minute', { ascending: true })
 
   if (error) {
+    console.error('fetchGoals error:', error)
     return []
   }
-  return data ?? []
+
+  return data || []
 }
 
-export async function fetchParticipants() {
+export async function fetchParticipants(matchId) {
+  if (!matchId) return []
+
   const { data, error } = await supabase
-    .from('match_participants')
-    .select('id,team,name,number')
-    .eq('match_id', MATCH_ID)
-    .order('team', { ascending: true })
-    .order('number', { ascending: true })
+    .from('participants')
+    .select('*')
+    .eq('match_id', matchId)
 
   if (error) {
+    console.error('fetchParticipants error:', error)
     return []
   }
-  return data ?? []
+
+  return data || []
 }
 
-export async function updateMatch(updates) {
-  const { data, error } = await supabase
-    .from('matches')
-    .update(updates)
-    .eq('id', MATCH_ID)
-    .select()
+// Realtime subscription
 
-  if (error) {
-    throw new Error('Unable to update match.')
-  }
-  return data[0]
-}
+export function subscribeToUpdates(matchId, onGoalsUpdate, onMatchUpdate) {
+  if (!matchId) return null
 
-export async function updateGoal(goal) {
-  const { error } = await supabase
-    .from('goals')
-    .update(goal)
-    .eq('id', goal.id)
-
-  if (error) {
-    throw error
-  }
-}
-
-export async function recordGoal(goal) {
-  const { error } = await supabase
-    .from('goals')
-    .insert(goal)
-
-  if (error) {
-    throw error
-  }
-}
-
-export function subscribeToUpdates(onGoalUpdate, onMatchUpdate) {
   const channel = supabase
-    .channel('realtime-match-updates')
+    .channel(`match-${matchId}`)
     .on(
       'postgres_changes',
       {
         event: '*',
         schema: 'public',
         table: 'goals',
-        filter: `match_id=eq.${MATCH_ID}`,
+        filter: `match_id=eq.${matchId}`,
       },
-      onGoalUpdate,
+      (payload) => {
+        onGoalsUpdate?.(payload)
+      }
     )
     .on(
       'postgres_changes',
@@ -96,9 +97,11 @@ export function subscribeToUpdates(onGoalUpdate, onMatchUpdate) {
         event: '*',
         schema: 'public',
         table: 'matches',
-        filter: `id=eq.${MATCH_ID}`,
+        filter: `id=eq.${matchId}`,
       },
-      onMatchUpdate,
+      (payload) => {
+        onMatchUpdate?.(payload)
+      }
     )
     .subscribe()
 
@@ -106,3 +109,5 @@ export function subscribeToUpdates(onGoalUpdate, onMatchUpdate) {
     supabase.removeChannel(channel)
   }
 }
+
+// Mutations & Admin actions
