@@ -1,11 +1,10 @@
 import './App.css'
 import { useEffect, useState } from 'react'
-import { supabase } from './lib/supabaseClient'
 
 import { Timer } from './lib/Timer'
 // import { AdminDrawer } from './AdminDrawer'
 import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates } from './lib/api'
-import { computeScore, formatLatestGoal, getElapsedMs, formatClock } from './lib/gameLogic'
+import { computeScore, formatLatestGoal } from './lib/gameLogic'
 
 // placeholder match data
 const initialMatch = {
@@ -13,13 +12,12 @@ const initialMatch = {
   team1_name: 'Home United',
   team2_name: 'Away Rangers',
   status: 'Pending',
-  started_at: null,
+  started_at: null, // default null, use Date.now() to test
   season: 'Season Zero',
   round_number: '1',
   venue: 'Venue Stadium',
   pitch_number: '2',
-  game_times: '1200-1300',
-  is_paused: false,
+  game_times: '01/01/2026 1200-1300',
   half_time_started_at: null,
   team1_uniform_colour: 'Red/Gold',
   team2_uniform_colour: 'Blue/White',
@@ -27,12 +25,11 @@ const initialMatch = {
 
 // main React component
 function App() {
-  const [matchId, setMatchId] = useState('replace-with-match-id') // hardcoded for demo
+  const [matchId, setMatchId] = useState(null) // hardcoded for demo
   const [match, setMatch] = useState(initialMatch) // refer to object shape above
   const [goals, setGoals] = useState([])
   const [participants, setParticipants] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+
   const [themeOn, setThemeOn] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -43,11 +40,7 @@ useEffect(() => {
 
 // data fetching on mount + cleanup
 useEffect(() => {
-  if (!matchId || matchId === 'replace-with-match-id') {
-    setError('Inactive match ID')
-    setLoading(false)
-    return
-  }
+  if (!matchId) return
 
   let isMounted = true
   async function loadInitialData() {
@@ -56,11 +49,12 @@ useEffect(() => {
       fetchGoals(matchId),
       fetchParticipants(matchId),
     ])
-   
+
     if (!isMounted) return
-    // acceptable because lifecycle is single-mount and match with no re-entry...
+    // acceptable because lifecycle is single-mount with no re-entry
     // replace if matchId can change, component can remount frequently,
-    // or if concurrent fetches exist! /AM
+    // or if concurrent fetches exist!
+    // AM
 
     if (matchData) {
       setMatch(matchData)
@@ -68,12 +62,11 @@ useEffect(() => {
 
     setGoals(goalsData)
     setParticipants(participantsData)
-    setLoading(false)
   }
 
   loadInitialData()
-  const unsubscribe = subscribeToUpdates(
-    matchId,
+
+  const unsubscribe = subscribeToUpdates(matchId,
     async () => {
       const goalsData = await fetchGoals(matchId)
       if (isMounted) setGoals(goalsData)
@@ -88,10 +81,10 @@ useEffect(() => {
     isMounted = false
     unsubscribe?.()
   }
-}, [])
+}, [matchId])
 
   const score = computeScore(goals)
-  const latestGoal = formatLatestGoal(goals, match)
+  // const latestGoal = formatLatestGoal(goals, match) // add with "last goal" marquee
 
   const team1Players = participants.filter((player) => player.team === 'team1')
   const team2Players = participants.filter((player) => player.team === 'team2')
@@ -151,7 +144,7 @@ useEffect(() => {
           <p className="game-info-panel text-right">Pitch {match.pitch_number}</p>
         </div>
         <div className="game-info-panel">
-          <p className="game-info-panel text-left">Game Time: {match.game_times}</p>
+          <p className="game-info-panel text-left">{match.game_times}</p>
           <p className="game-info-panel text-right">{match.team1_uniform_colour} Jersey</p>
         </div>
       </section>

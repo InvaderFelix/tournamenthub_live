@@ -8,8 +8,8 @@ export function Timer({ match }) {
     if (!match?.started_at) return
 
     const id = setInterval(() => {
-      setNow(Date.now())
-    }, 1000)
+      setNow(Date.now())}
+      , 1000)
 
     return () => clearInterval(id)
   }, [match?.started_at])

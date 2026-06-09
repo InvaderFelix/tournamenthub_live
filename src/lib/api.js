@@ -3,7 +3,7 @@
 import { supabase } from './supabaseClient'
 
 // Read queries
-// Note that game_status exists as ENUM ('pending', 'first_half', etc...) in the database
+// Note that game_status exists as ENUM ('pending', 'first_half', etc...)
 
 export async function fetchMatch(matchId) {
   if (!matchId) return null
@@ -44,7 +44,15 @@ export async function fetchGoals(matchId) {
 
   const { data, error } = await supabase
     .from('goals')
-    .select('*')
+    .select(`
+      id,
+      match_id,
+      minute,
+      team_id,
+      player_name,
+      player_number,
+      created_at
+    `)
     .eq('match_id', matchId)
     .order('minute', { ascending: true })
 
