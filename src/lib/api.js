@@ -119,3 +119,28 @@ export function subscribeToUpdates(matchId, onGoalsUpdate, onMatchUpdate) {
 }
 
 // Mutations & Admin actions
+
+export async function createMatch(formData) {
+  const { data, error } = await supabase
+    .from('matches')
+    .insert([{
+      team_1_name: formData.team_1_name,
+      team_2_name: formData.team_2_name,
+      season_name: formData.season_name,
+      round_number: formData.round_number,
+      venue_name: formData.venue_name,
+      pitch_number: formData.pitch_number,
+      game_schedule: formData.game_schedule,
+      started_at: formData.started_at || null,
+      game_status: 'pending',
+    }])
+    .select()
+    .maybeSingle()
+
+  if (error) {
+    console.error('createMatch error:', error)
+    return null
+  }
+
+  return data
+}

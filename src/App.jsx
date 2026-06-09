@@ -2,22 +2,22 @@ import './App.css'
 import { useEffect, useState } from 'react'
 
 import { Timer } from './lib/Timer'
-// import { AdminDrawer } from './AdminDrawer'
-import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates } from './lib/api'
+import { AdminDrawer } from './AdminDrawer'
+import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates, createMatch } from './lib/api'
 import { computeScore, formatLatestGoal } from './lib/gameLogic'
 
 // placeholder match data
 const initialMatch = {
   id: null,
-  team1_name: 'Home United',
-  team2_name: 'Away Rangers',
-  status: 'Pending',
+  team_1_name: 'Home United',
+  team_2_name: 'Away Rangers',
+  game_status: 'Pending',
   started_at: null, // default null, use Date.now() to test
-  season: 'Season Zero',
+  season_name: 'Season Zero',
   round_number: '1',
-  venue: 'Venue Stadium',
+  venue_name: 'Venue Stadium',
   pitch_number: '2',
-  game_times: '01/01/2026 1200-1300',
+  game_schedule: '01/01/2026 1200-1300',
   half_time_started_at: null,
   team1_uniform_colour: 'Red/Gold',
   team2_uniform_colour: 'Blue/White',
@@ -25,11 +25,11 @@ const initialMatch = {
 
 // main React component
 function App() {
-  const [matchId, setMatchId] = useState(null) // hardcoded for demo
+  const [matchId, setMatchId] = useState('')
+  // hardcoded matchID above solely for testing, replace with ''
   const [match, setMatch] = useState(initialMatch) // refer to object shape above
   const [goals, setGoals] = useState([])
   const [participants, setParticipants] = useState([])
-
   const [themeOn, setThemeOn] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -83,6 +83,16 @@ useEffect(() => {
   }
 }, [matchId])
 
+// handling form submission from adminDrawer
+async function handleCreateMatch(formData) {
+  const newMatch = await createMatch(formData)
+  if (newMatch) {
+    setMatch(newMatch)
+    setMatchId(newMatch.id)
+    setDrawerOpen(false)
+  }
+}
+
   const score = computeScore(goals)
   // const latestGoal = formatLatestGoal(goals, match) // add with "last goal" marquee
 
@@ -108,6 +118,12 @@ useEffect(() => {
           </span>
         </button>
 
+        <AdminDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onCreateMatch={handleCreateMatch}
+        />
+        
         <button
           type="button"
           className="hamburger-btn"
@@ -121,30 +137,30 @@ useEffect(() => {
 
       <section className="scoreboard">
         <div className="scoreboard-panel">
-          <div className="team">{/*<span className="team-suburb">{match.team1_suburb}</span>*/}{match.team1_name}</div>
+          <div className="team">{/*<span className="team-suburb">{match.team_1_suburb}</span>*/}{match.team_1_name}</div>
           <div className="timer">
             {match.started_at ? (
               <Timer match={match} />
             ) : ( '00:00' )}
           </div>
-          <div className="team">{/*<span className="team-suburb">{match.team2_suburb}</span>*/}{match.team2_name}</div>
+          <div className="team">{/*<span className="team-suburb">{match.team_2_suburb}</span>*/}{match.team_2_name}</div>
           <div className="score">{score.team1}</div>
-          <div className="status">{match.status}</div>
+          <div className="status">{match.game_status}</div>
           <div className="score">{score.team2}</div>
         </div>
       </section>
 
       <section className="game-info">
         <div className="game-info-panel">
-          <p className="game-info-panel text-left">{match.season}</p>
+          <p className="game-info-panel text-left">{match.season_name}</p>
           <p className="game-info-panel text-right">Round {match.round_number}</p>
         </div>
         <div className="game-info-panel">
-          <p className="game-info-panel text-left">{match.venue}</p>
+          <p className="game-info-panel text-left">{match.venue_name}</p>
           <p className="game-info-panel text-right">Pitch {match.pitch_number}</p>
         </div>
         <div className="game-info-panel">
-          <p className="game-info-panel text-left">{match.game_times}</p>
+          <p className="game-info-panel text-left">{match.game_schedule}</p>
           <p className="game-info-panel text-right">{match.team1_uniform_colour} Jersey</p>
         </div>
       </section>
