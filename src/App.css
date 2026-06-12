@@ -237,6 +237,8 @@
   right: 0;
   height: 100vh;
   width: 360px;
+  padding: 8px;
+  border: 2px solid var(--border-strong);
 
   transform: translateX(100%);
   transition: transform 0.25s ease;
@@ -247,4 +249,42 @@
 
 .admin-drawer.open {
   transform: translateX(0);
+}
+
+.drawer-spacer {
+  height: 30px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 2px;
+}
+
+.form-field span {
+  opacity: 0.8;
+}
+
+.form-field input {
+  padding: 2px;
+}
+
+.half-widths {
+  display: flex;
+  gap: 16px;
+}
+
+.uniform-colours .form-field {
+  flex: 1;
+}
+
+.uniform-colours input[type="color"] {
+  width: 100%;
+  height: 25px;
+  cursor: pointer;
+}
+
+.round-pitch {
+  flex: 1;
 }

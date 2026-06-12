@@ -25,13 +25,15 @@ const initialMatch = {
 
 // main React component
 function App() {
-  const [matchId, setMatchId] = useState('')
-  // hardcoded matchID above solely for testing, replace with ''
+  const [matchId, setMatchId] = useState('17bdd4d3-f435-48be-aaa3-362b966bc26f')
+    // hardcoded matchID above solely for testing, replace with ''
+
   const [match, setMatch] = useState(initialMatch) // refer to object shape above
   const [goals, setGoals] = useState([])
   const [participants, setParticipants] = useState([])
   const [themeOn, setThemeOn] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [createError, setCreateError] = useState(null)
 
 // dark mode toggle
 useEffect(() => {
@@ -53,8 +55,7 @@ useEffect(() => {
     if (!isMounted) return
     // acceptable because lifecycle is single-mount with no re-entry
     // replace if matchId can change, component can remount frequently,
-    // or if concurrent fetches exist!
-    // AM
+    // or if concurrent fetches exist! // AM
 
     if (matchData) {
       setMatch(matchData)
@@ -83,13 +84,17 @@ useEffect(() => {
   }
 }, [matchId])
 
-// handling form submission from adminDrawer
+// handle form submission from adminDrawer
 async function handleCreateMatch(formData) {
+  setCreateError(null)
   const newMatch = await createMatch(formData)
+
   if (newMatch) {
     setMatch(newMatch)
     setMatchId(newMatch.id)
-    setDrawerOpen(false)
+    // setDrawerOpen(false) // Optional: keep open for multiple match creation
+  } else {
+    setCreateError('Failed to create match. Please try again.')
   }
 }
 
@@ -122,6 +127,7 @@ async function handleCreateMatch(formData) {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           onCreateMatch={handleCreateMatch}
+          error={createError}
         />
         
         <button

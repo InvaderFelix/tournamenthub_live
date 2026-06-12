@@ -132,6 +132,8 @@ export async function createMatch(formData) {
       pitch_number: formData.pitch_number,
       game_schedule: formData.game_schedule,
       started_at: formData.started_at || null,
+      team_1_uniform_colour: formData.team_1_uniform_colour,
+      team_2_uniform_colour: formData.team_2_uniform_colour,
       game_status: 'pending',
     }])
     .select()
