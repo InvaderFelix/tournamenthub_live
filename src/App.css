@@ -5,18 +5,16 @@
     overflow: hidden;
 }
 
-.text-left {
-    text-align: left;
-}
-
-.text-right {
-    text-align: right;
-}
+.text-left {text-align: left;}
+.text-right {text-align: right;}
+.text-center {text-align: center;}
 
 .topbar {
     display: flex;
     justify-content: space-between;
 }
+
+/* SCOREBOARD */
 
 .scoreboard {
     flex: 0 0 auto;
@@ -94,18 +92,35 @@
     line-height: 0.95;
 }
 
+/* GAME INFORMATION */
+
 .game-info {
     margin-top: 4px;
     margin-bottom: 4px;
 }
 
-.game-info-panel {
+.game-info-row {
     color: var(--text-muted);
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    padding: 0.1em 0.4rem;
+    padding: 0.2em 0.5rem;
+}
+
+.game-info-row > * {
     margin: 0;
 }
+
+.game-info-row.cols-3 {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: flex-start;
+}
+
+.game-info-row.cols-2 {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2em 1rem;
+}
+
+/* GOALS */
 
 .goal-summary {
     flex: 0 0 auto;
@@ -223,7 +238,14 @@
   background: var(--text-primary);
 }
 
-/* Admin panel/drawer */
+.jersey-icon {
+  width: 3em;
+  height: 3em;
+  stroke: var(--border-soft);
+  stroke-width: 3px;
+}
+
+/* Admin panel + drawer */
 
 .drawer-overlay {
   position: fixed;
@@ -268,6 +290,7 @@
 
 .form-field input {
   padding: 2px;
+  width: 100%;
 }
 
 .half-widths {
@@ -283,8 +306,4 @@
   width: 100%;
   height: 25px;
   cursor: pointer;
-}
-
-.round-pitch {
-  flex: 1;
 }

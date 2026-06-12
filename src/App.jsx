@@ -19,13 +19,13 @@ const initialMatch = {
   pitch_number: '2',
   game_schedule: '01/01/2026 1200-1300',
   half_time_started_at: null,
-  team1_uniform_colour: 'Red/Gold',
-  team2_uniform_colour: 'Blue/White',
+  team_1_uniform_colour: '#FF0000',
+  team_2_uniform_colour: '#0000FF',
 }
 
 // main React component
 function App() {
-  const [matchId, setMatchId] = useState('17bdd4d3-f435-48be-aaa3-362b966bc26f')
+  const [matchId, setMatchId] = useState('80234720-0d61-4d21-b6cf-e54ed10ed8bb')
     // hardcoded matchID above solely for testing, replace with ''
 
   const [match, setMatch] = useState(initialMatch) // refer to object shape above
@@ -129,7 +129,7 @@ async function handleCreateMatch(formData) {
           onCreateMatch={handleCreateMatch}
           error={createError}
         />
-        
+
         <button
           type="button"
           className="hamburger-btn"
@@ -157,17 +157,26 @@ async function handleCreateMatch(formData) {
       </section>
 
       <section className="game-info">
-        <div className="game-info-panel">
-          <p className="game-info-panel text-left">{match.season_name}</p>
-          <p className="game-info-panel text-right">Round {match.round_number}</p>
+        <div className="game-info-row cols-3">
+          <p className="text-left">
+            <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_1_uniform_colour }}>
+              <path d="M20 4 L8 14 L14 24 L20 20 L20 56 L44 56 L44 20 L50 24 L56 14 L44 4 L38 4 C38 8 34 10 32 10 C30 10 26 8 26 4 Z" />
+            </svg>
+          </p>
+          <p className="text-center">{match.game_schedule}</p>
+          <p className="text-right">
+            <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_2_uniform_colour }}>
+              <path d="M20 4 L8 14 L14 24 L20 20 L20 56 L44 56 L44 20 L50 24 L56 14 L44 4 L38 4 C38 8 34 10 32 10 C30 10 26 8 26 4 Z" />
+            </svg>
+          </p>
         </div>
-        <div className="game-info-panel">
-          <p className="game-info-panel text-left">{match.venue_name}</p>
-          <p className="game-info-panel text-right">Pitch {match.pitch_number}</p>
+        <div className="game-info-row cols-2">
+          <p className="text-left">{match.season_name}</p>
+          <p className="text-right">Round {match.round_number}</p>
         </div>
-        <div className="game-info-panel">
-          <p className="game-info-panel text-left">{match.game_schedule}</p>
-          <p className="game-info-panel text-right">{match.team1_uniform_colour} Jersey</p>
+        <div className="game-info-row cols-2">
+          <p className="text-left">{match.venue_name}</p>
+          <p className="text-right">Pitch {match.pitch_number}</p>
         </div>
       </section>
 
@@ -193,6 +202,7 @@ async function handleCreateMatch(formData) {
             </div>
           ))}
         </div>
+
         <div className="players-section-panel">
           {team2Players.map(p => (
             <div key={p.id} className="away-players">

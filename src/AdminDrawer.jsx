@@ -24,14 +24,19 @@ export function AdminDrawer({ open, onClose, onCreateMatch, error }) {
     e.preventDefault()
 
     // format game_schedule into text display string
-    const formatted = form.game_schedule
+    const formattedTime = form.game_schedule
       ? new Date(form.game_schedule).toLocaleString('en-AU', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit', hour12: false,
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
         })
       : ''
 
-    onCreateMatch?.({...form, game_schedule: formatted, started_at: null })
+    onCreateMatch?.({...form, game_schedule: formattedTime, started_at: null })
   }
 
   return (
@@ -130,6 +135,7 @@ export function AdminDrawer({ open, onClose, onCreateMatch, error }) {
             />
           </label>
 
+          <br />
           {error && <p className="form-error">{error}</p>}
           <button type="submit">Create match</button>
         </form>
