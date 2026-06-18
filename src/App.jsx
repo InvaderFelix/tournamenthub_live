@@ -9,15 +9,15 @@ import { computeScore, formatLatestGoal } from './lib/gameLogic'
 // placeholder match data
 const initialMatch = {
   id: null,
-  team_1_name: 'Home United',
-  team_2_name: 'Away Rangers',
+  team_1_name: 'Hometown United FC',
+  team_2_name: 'Away City Rangers',
   game_status: 'Pending',
   started_at: null, // default null, use Date.now() to test
-  season_name: 'Season Zero',
+  season_name: 'Season Name',
   round_number: '1',
   venue_name: 'Venue Stadium',
   pitch_number: '2',
-  game_schedule: '01/01/2026 1200-1300',
+  game_schedule: 'Thursday, 17 September 2026 at 12:45 pm',
   half_time_started_at: null,
   team_1_uniform_colour: '#FF0000',
   team_2_uniform_colour: '#0000FF',
@@ -25,14 +25,14 @@ const initialMatch = {
 
 // main React component
 function App() {
-  const [matchId, setMatchId] = useState('80234720-0d61-4d21-b6cf-e54ed10ed8bb')
+  const [matchId, setMatchId] = useState('')
     // hardcoded matchID above solely for testing, replace with ''
-
   const [match, setMatch] = useState(initialMatch) // refer to object shape above
   const [goals, setGoals] = useState([])
   const [participants, setParticipants] = useState([])
   const [themeOn, setThemeOn] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [unlocked, setUnlocked] = useState(false)
   const [createError, setCreateError] = useState(null)
 
 // dark mode toggle
@@ -128,12 +128,20 @@ async function handleCreateMatch(formData) {
           onClose={() => setDrawerOpen(false)}
           onCreateMatch={handleCreateMatch}
           error={createError}
+          unlocked={unlocked}
+          onUnlock={() => setUnlocked(true)}
         />
 
         <button
           type="button"
           className="hamburger-btn"
-          onClick={() => setDrawerOpen((value) => !value)}
+            onClick={() => {
+            if (unlocked) {
+              setDrawerOpen(v => !v)
+            } else {
+              setDrawerOpen(true) // open drawer to show PIN entry
+            }
+          }}
         >
           <span />
           <span />
@@ -148,6 +156,7 @@ async function handleCreateMatch(formData) {
             {match.started_at ? (
               <Timer match={match} />
             ) : ( '00:00' )}
+
           </div>
           <div className="team">{/*<span className="team-suburb">{match.team_2_suburb}</span>*/}{match.team_2_name}</div>
           <div className="score">{score.team1}</div>
@@ -157,23 +166,11 @@ async function handleCreateMatch(formData) {
       </section>
 
       <section className="game-info">
-        <div className="game-info-row cols-3">
-          <p className="text-left">
-            <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_1_uniform_colour }}>
-              <path d="M20 4 L8 14 L14 24 L20 20 L20 56 L44 56 L44 20 L50 24 L56 14 L44 4 L38 4 C38 8 34 10 32 10 C30 10 26 8 26 4 Z" />
-            </svg>
-          </p>
-          <p className="text-center">{match.game_schedule}</p>
-          <p className="text-right">
-            <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_2_uniform_colour }}>
-              <path d="M20 4 L8 14 L14 24 L20 20 L20 56 L44 56 L44 20 L50 24 L56 14 L44 4 L38 4 C38 8 34 10 32 10 C30 10 26 8 26 4 Z" />
-            </svg>
-          </p>
-        </div>
         <div className="game-info-row cols-2">
           <p className="text-left">{match.season_name}</p>
           <p className="text-right">Round {match.round_number}</p>
         </div>
+
         <div className="game-info-row cols-2">
           <p className="text-left">{match.venue_name}</p>
           <p className="text-right">Pitch {match.pitch_number}</p>
@@ -183,35 +180,93 @@ async function handleCreateMatch(formData) {
       <h3 className="section-title">Goal Summary</h3>
       <section className="goal-summary">
         <div className="goal-summary-panel">
-          <div className="goal-summary-column">
-            <div className="text-left"></div>
+
+          <div className="goal-summary-text-column text-left">
+            Placeholder<br />
+            (1'01")<br />
+            (2'01")<br />
+            (3'01")<br />
           </div>
 
-          <div className="goal-summary-column">
-            <div className="text-right"></div>
+          <div className="goal-summary-text-column text-left">
+              {/* {goals.map((goal) => ( */}
+              Placeholder<br />
+              #5 Mia H<br />
+              #10 Zara Q<br />
+              #42 Poppy R<br />
           </div>
+
+          <div className="goal-summary-text-column text-right">
+              {/* {goals.map((goal) => ( */}
+              Placeholder<br />
+              Zoe V #6<br />
+              Jane D #9<br />
+              Kat G #67<br />
+          </div>
+
+          <div className="goal-summary-text-column text-right">
+            Placeholder<br />
+            (1'00")<br />
+            (2'00")<br />
+            (3'00")<br />
+          </div>
+
         </div>
       </section>
 
       <h3 className="section-title">Participating Players</h3>
+      <div className="players-section-header">
+        
+        <div>
+            <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_2_uniform_colour }}>
+              <path d="M20 4 L8 14 L14 24 L20 20 L20 56 L44 56 L44 20 L50 24 L56 14 L44 4 L38 4 C38 8 34 10 32 10 C30 10 26 8 26 4 Z" />
+            </svg>
+        </div>
+        
+        <div>
+        Placeholder<br />
+        11 Starting<br />
+        4 Substitutes
+        </div>
+
+        <div>
+        Placeholder<br />
+        11 Starting<br />
+        3 Substitutes
+        </div>
+
+        <div>
+          <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_1_uniform_colour }}>
+            <path d="M20 4 L8 14 L14 24 L20 20 L20 56 L44 56 L44 20 L50 24 L56 14 L44 4 L38 4 C38 8 34 10 32 10 C30 10 26 8 26 4 Z" />
+          </svg>
+        </div>
+
+        </div>
+
       <section className="players-section">
         <div className="players-section-panel">
-          {team1Players.map(p => (
-            <div key={p.id} className="home-players">
-              {p.jersey_number} {p.name}
+            <div className="text-left">
+              Placeholder<br />
+              #5 Mia H<br />
+              #10 Zara Q<br />
+              #42 Poppy R<br />
             </div>
-          ))}
         </div>
 
         <div className="players-section-panel">
-          {team2Players.map(p => (
-            <div key={p.id} className="away-players">
-              {p.jersey_number} {p.name}
-            </div>
-          ))}
+          <div className="text-right">
+            Placeholder<br />
+            Zoe V #6<br />
+            Jane D #9<br />
+            Katarina G #69<br />
+          </div>
         </div>
       </section>
 
+      <div className='footer'>
+        {match.game_schedule}
+        {/* {match.id} */}
+      </div>
     </main>
   )
 }

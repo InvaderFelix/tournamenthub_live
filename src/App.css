@@ -34,7 +34,7 @@
     display: grid;
     grid-template-columns: 40% 20% 40%;
     grid-template-rows: minmax(4em, auto) minmax(4em, auto);
-    border: 2px solid var(--border-strong);
+    border: 6px solid var(--border-strong);
     border-radius: 12px;
     gap: 1px;
     padding: 8px;
@@ -63,7 +63,7 @@
     font-size: clamp(1rem, 2.5vw + 0.5rem, 4rem);
     font-weight: 500;
     letter-spacing: 0.03em;
-    padding: 0.4rem 0.2rem;
+    padding: 0.2rem 0.2rem;
     border: 2px dashed var(--border-soft);
     border-radius: 4px;
     background: var(--panel-bg);
@@ -108,11 +108,12 @@
     margin: 0;
 }
 
-.game-info-row.cols-3 {
+/* .game-info-row.cols-3 {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: flex-start;
-}
+    padding: 0.2em 0.1rem;
+} */
 
 .game-info-row.cols-2 {
     display: flex;
@@ -123,7 +124,6 @@
 /* GOALS */
 
 .goal-summary {
-    flex: 0 0 auto;
     border: 2px solid var(--border-strong);
     border-radius: 12px;
     margin-bottom: 12px;
@@ -132,14 +132,12 @@
 
 .goal-summary-panel {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0.4em 0.6rem;
+    grid-template-columns: auto 1fr 1fr auto;
+    padding: 0.4em 0.4rem;
 }
 
-.goal-summary-column {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+.goal-summary-text-column {
+    padding: 0 0.4em 0 0.4em;
 }
 
 .players-section {
@@ -150,12 +148,25 @@
     gap: 2px;
 }
 
+.players-section-header {
+    color: var(--text-muted);
+    padding: 0 0.4em 0 0.4em;
+    display: flex;
+    justify-content: space-between;
+}
+
 .players-section-panel {
     border: 2px solid var(--border-strong);
     border-radius: 12px;
     padding: 0.4em 0.6rem;
     overflow-y: auto;
     min-height: 0;
+}
+
+.footer {
+    color: var(--text-muted);
+    height: 1.5em;
+    text-align: center;
 }
 
 /* BEGIN: Slider component */
@@ -239,8 +250,8 @@
 }
 
 .jersey-icon {
-  width: 3em;
-  height: 3em;
+  width: 4em;
+  height: 4em;
   stroke: var(--border-soft);
   stroke-width: 3px;
 }
@@ -306,4 +317,26 @@
   width: 100%;
   height: 25px;
   cursor: pointer;
+}
+
+/* PIN entry */
+
+.pin-gate {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 2rem;
+}
+
+.pin-gate input {
+  padding: 10px;
+  text-align: center;
+  font-size: 1.5rem;
+  letter-spacing: 0.5em;
+  width: 100%;
+}
+
+.pin-gate button {
+  width: 100%;
+  padding: 8px;
 }

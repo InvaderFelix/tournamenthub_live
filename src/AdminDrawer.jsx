@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { PinGate } from './lib/pinLogin.jsx'
 // import { updateMatch, startMatch, startHalfTime, resumeMatch, finishMatch } from './lib/api'
 import './App.css'
 
-export function AdminDrawer({ open, onClose, onCreateMatch, error }) {
+export function AdminDrawer({ open, onClose, onCreateMatch, error, unlocked, onUnlock }) {
   const [form, setForm] = useState({
     team_1_name: '',
     team_2_name: '',
@@ -43,7 +44,9 @@ export function AdminDrawer({ open, onClose, onCreateMatch, error }) {
     <>
     {open && <div className="drawer-overlay" onClick={onClose} />}
     <div className={`admin-drawer ${open ? 'open' : ''}`}>
-        <form onSubmit={handleSubmit}>
+      {!unlocked
+      ? <PinGate onUnlock={onUnlock} />
+      : <form onSubmit={handleSubmit}>
           <div className="drawer-spacer" />
 
           <label className="form-field">
@@ -139,6 +142,7 @@ export function AdminDrawer({ open, onClose, onCreateMatch, error }) {
           {error && <p className="form-error">{error}</p>}
           <button type="submit">Create match</button>
         </form>
+      }
     </div>
     </>
   )
