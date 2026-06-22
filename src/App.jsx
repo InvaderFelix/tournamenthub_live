@@ -42,7 +42,7 @@ function App() {
   const themes = [
     { value: 'broadcast', label: 'ESPN' },
     { value: 'premium',   label: 'Prem' },
-    { value: 'cyber',     label: 'Cyber' },
+    { value: 'cute',     label: 'Cute' },
     { value: 'stadium',   label: 'Elite' },
   ]
 

@@ -27,16 +27,16 @@ export function MatchSelector({ onSelectMatch }) {
         {matches.length === 0 && (
           <p className="selector-empty">No matches scheduled yet.</p>
         )}
-        {matches.map(m => (
+        {matches.map(match => (
           <button
-            key={m.id}
+            key={match.id}
             className="match-card"
-            onClick={() => onSelectMatch(m.id)}
+            onClick={() => onSelectMatch(match.id)}
           >
-            <span className="match-card-teams">{m.team_1_name} vs {m.team_2_name}</span>
-            <span className="match-card-meta">{m.game_schedule}</span>
-            <span className="match-card-meta">{m.venue_name} — Pitch {m.pitch_number}</span>
-            <span className={`match-card-status status-${m.game_status}`}>{m.game_status}</span>
+            <span className="match-card-teams">{match.team_1_name} vs {match.team_2_name}</span>
+            <span className="match-card-meta">{match.game_schedule}</span>
+            <span className="match-card-meta">{match.venue_name} — Pitch {match.pitch_number}</span>
+            <span className={`match-card-status status-${match.game_status}`}>{match.game_status}</span>
           </button>
         ))}
       </div>

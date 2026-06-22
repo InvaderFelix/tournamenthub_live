@@ -66,7 +66,7 @@
     text-transform: uppercase;
     text-align: center;
     font-size: clamp(1rem, 2.5vw + 0.5rem, 4rem);
-    font-weight: 500;
+    font-weight: 800;
     letter-spacing: 0.03em;
     padding: 0.2rem 0.2rem;
     border: 2px dashed var(--border-soft);
@@ -455,15 +455,16 @@
 }
 
 .match-card-meta {
-    font-size: 0.85rem;
+    font-size: 0.90rem;
     color: var(--text-muted);
 }
 
 .match-card-status {
-    font-size: 0.75rem;
+    text-align: right;
+    font-size: 0.95rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
+    letter-spacing: 0.10em;
+    color: var(--text-primary);
 }
 
 .drawer-mode-toggle {
