@@ -118,6 +118,28 @@ export function subscribeToUpdates(matchId, onGoalsUpdate, onMatchUpdate) {
   }
 }
 
+export async function fetchMatches() {
+  const { data, error } = await supabase
+    .from('matches')
+    .select(`
+      id,
+      team_1_name,
+      team_2_name,
+      game_schedule,
+      game_status,
+      venue_name,
+      pitch_number
+    `)
+    .order('game_schedule', { ascending: true })
+
+  if (error) {
+    console.error('fetchMatches error:', error)
+    return []
+  }
+
+  return data || []
+}
+
 // Mutations & Admin actions
 
 export async function createMatch(formData) {
@@ -145,4 +167,37 @@ export async function createMatch(formData) {
   }
 
   return data
+}
+
+export async function updateMatch(matchId, updates) {
+  const { data, error } = await supabase
+    .from('matches')
+    .update(updates)
+    .eq('id', matchId)
+    .select()
+    .maybeSingle()
+
+  if (error) {
+    console.error('updateMatch error:', error)
+    return { data: null, error }
+  }
+
+  return { data, error: null }
+}
+
+export async function checkMatchExists(team_1_name, team_2_name, game_schedule) {
+  const { data, error } = await supabase
+    .from('matches')
+    .select('id')
+    .eq('team_1_name', team_1_name)
+    .eq('team_2_name', team_2_name)
+    .eq('game_schedule', game_schedule)
+    .maybeSingle()
+
+  if (error) {
+    console.error('checkMatchExists error:', error)
+    return false
+  }
+
+  return !!data
 }

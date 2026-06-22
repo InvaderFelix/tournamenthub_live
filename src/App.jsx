@@ -2,9 +2,11 @@ import './App.css'
 import { useEffect, useState } from 'react'
 
 import { Timer } from './lib/Timer'
+import { MatchSelector } from './MatchSelector'
 import { AdminDrawer } from './AdminDrawer'
-import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates, createMatch } from './lib/api'
+import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates, createMatch, updateMatch, checkMatchExists } from './lib/api'
 import { computeScore, formatLatestGoal } from './lib/gameLogic'
+
 
 // placeholder match data
 const initialMatch = {
@@ -23,22 +25,32 @@ const initialMatch = {
   team_2_uniform_colour: '#0000FF',
 }
 
+
 // main React component
 function App() {
   const [matchId, setMatchId] = useState('')
-    // hardcoded matchID above solely for testing, replace with ''
+    // hardcoded matchID(s) above used only for testing, replace with ''
   const [match, setMatch] = useState(initialMatch) // refer to object shape above
   const [goals, setGoals] = useState([])
   const [participants, setParticipants] = useState([])
-  const [themeOn, setThemeOn] = useState(true)
+  const [mode, setMode] = useState('dark')
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [unlocked, setUnlocked] = useState(false)
+  const [view, setView] = useState('selector') // initial states: 'selector' | 'scoreboard'
   const [createError, setCreateError] = useState(null)
+  const [theme, setTheme] = useState('stadium')
+  const themes = [
+    { value: 'broadcast', label: 'ESPN' },
+    { value: 'premium',   label: 'Prem' },
+    { value: 'cyber',     label: 'Cyber' },
+    { value: 'stadium',   label: 'Elite' },
+  ]
 
-// dark mode toggle
+// theme toggle
 useEffect(() => {
-  document.documentElement.dataset.theme = themeOn ? 'dark' : 'light'
-}, [themeOn])
+  document.documentElement.dataset.theme = theme
+  document.documentElement.dataset.mode = mode
+}, [theme, mode])
 
 // data fetching on mount + cleanup
 useEffect(() => {
@@ -87,66 +99,118 @@ useEffect(() => {
 // handle form submission from adminDrawer
 async function handleCreateMatch(formData) {
   setCreateError(null)
-  const newMatch = await createMatch(formData)
 
+  const exists = await checkMatchExists(
+    formData.team_1_name,
+    formData.team_2_name,
+    formData.game_schedule
+  )
+
+  if (exists) {
+    setCreateError('A match with these teams and date already exists.')
+    return
+  }
+
+  const newMatch = await createMatch(formData)
   if (newMatch) {
     setMatch(newMatch)
     setMatchId(newMatch.id)
-    // setDrawerOpen(false) // Optional: keep open for multiple match creation
   } else {
     setCreateError('Failed to create match. Please try again.')
   }
 }
 
-  const score = computeScore(goals)
-  // const latestGoal = formatLatestGoal(goals, match) // add with "last goal" marquee
+async function handleUpdateMatch(formData) {
+  setCreateError(null)
+  const { data, error } = await updateMatch(matchId, formData)
+  if (data) {
+    setMatch(data)
+  } else {
+    setCreateError(error?.message || 'Failed to update match.')
+  }
+}
 
-  const team1Players = participants.filter((player) => player.team === 'team1')
-  const team2Players = participants.filter((player) => player.team === 'team2')
+const score = computeScore(goals)
+// const latestGoal = formatLatestGoal(goals, match) // add with "last goal" marquee
+const team1Players = participants.filter((player) => player.team === 'team1')
+const team2Players = participants.filter((player) => player.team === 'team2')
+
+if (view === 'selector') {
+  return <MatchSelector onSelectMatch={(id) => { setMatchId(id); setView('scoreboard') }} />
+}
 
   return (
     <main className="app-container">
 
       <div className="topbar">
-        <button
-          type="button"
-          className={`switch ${themeOn ? "on" : ""}`}
-          onClick={() => setThemeOn(v => !v)}
-          role="switch"
-        >
-          <span className="switch-track">
-            <span className="switch-thumb" />
-          </span>
+        <div className="theme-controls">
+          <div className="theme-switcher">
+            {themes.map(t => (
+              <button
+                key={t.value}
+                type="button"
+                className={`theme-btn ${theme === t.value ? 'active' : ''}`}
+                onClick={() => setTheme(t.value)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
           
-          <span className="switch-label">
-            {themeOn ? "Dark" : "Light"}
-          </span>
-        </button>
+          <button
+            type="button"
+            className={`switch ${mode === 'dark' ? 'on' : ''}`}
+            onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
+            role="switch"
+          >
+            <span className="switch-track">
+              <span className="switch-thumb" />
+            </span>
+            <span className="switch-label">
+              {mode === 'dark' ? 'Dark' : 'Light'}
+            </span>
+          </button>
+        </div>
 
         <AdminDrawer
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           onCreateMatch={handleCreateMatch}
+          onUpdateMatch={handleUpdateMatch}
           error={createError}
           unlocked={unlocked}
           onUnlock={() => setUnlocked(true)}
+          currentMatch={match}
         />
 
-        <button
-          type="button"
-          className="hamburger-btn"
-            onClick={() => {
-            if (unlocked) {
-              setDrawerOpen(v => !v)
-            } else {
-              setDrawerOpen(true) // open drawer to show PIN entry
-            }
-          }}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
+        <div className='topbar-right'>
+          <button
+              type="button"
+              className="back-btn"
+              onClick={() => setView('selector')}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 14L4 9l5-5" />
+                <path d="M4 9h10a6 6 0 0 1 0 12h-1" />
+              </svg>
+          </button>
+
+          <button
+            type="button"
+            className="hamburger-btn"
+              onClick={() => {
+              if (unlocked) {
+                setDrawerOpen(open => !open)
+              } else {
+                setDrawerOpen(open => !open)
+              }
+            }}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
       </div>
 
       <section className="scoreboard">
@@ -258,7 +322,7 @@ async function handleCreateMatch(formData) {
             Placeholder<br />
             Zoe V #6<br />
             Jane D #9<br />
-            Katarina G #69<br />
+            Katarina G #67<br />
           </div>
         </div>
       </section>

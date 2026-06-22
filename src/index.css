@@ -1,4 +1,148 @@
+/* BASE (light mode fallback) */
+
 :root {
+  font-family: 'Trebuchet MS', 'Gill Sans', 'Segoe UI', sans-serif;
+  line-height: 1.35;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  width: 100vw;
+  height: 100dvh;
+  font-size: 16px;
+  overflow: hidden;
+  position: fixed;
+}
+
+body {
+  color: var(--text-primary);
+  background: var(--bg-main);
+}
+
+button, input, select {
+  font-family: inherit;
+}
+
+/* BROADCAST (ESPN energy!)   */
+
+[data-theme="broadcast"][data-mode="light"] {
+  --bg-main: #f5f5f5;
+  --panel-bg: #ffffff;
+  --drawer-bg: #efefef;
+  --input-bg: #ffffff;
+  --text-primary: #0a0a0a;
+  --text-muted: #444444;
+  --border-soft: #cccccc;
+  --border-strong: #999999;
+  --accent-color: #cc0000;
+  --score-color: #cc0000;
+  --score-glow: rgb(204 0 0 / 20%);
+  --danger: #cc0000;
+  background: var(--bg-main);
+}
+
+[data-theme="broadcast"][data-mode="dark"] {
+  --bg-main: #0d0d0d;
+  --panel-bg: #1a1a1a;
+  --drawer-bg: #1f1f1f;
+  --input-bg: #242424;
+  --text-primary: #ffffff;
+  --text-muted: #aaaaaa;
+  --border-soft: #333333;
+  --border-strong: #555555;
+  --accent-color: #ff2233;
+  --score-color: #ff2233;
+  --score-glow: rgb(255 34 51 / 40%);
+  --danger: #ff2233;
+  background:
+    radial-gradient(circle at 10% 10%, rgb(255 34 51 / 10%), transparent 40%),
+    radial-gradient(circle at 90% 90%, rgb(255 34 51 / 7%), transparent 35%),
+    var(--bg-main);
+}
+
+/* PREMIUM yet understated */
+
+[data-theme="premium"][data-mode="light"] {
+  --bg-main: #f2f2f7;
+  --panel-bg: #ffffff;
+  --drawer-bg: #f2f2f7;
+  --input-bg: #ffffff;
+  --text-primary: #1c1c1e;
+  --text-muted: #8e8e93;
+  --border-soft: #e5e5ea;
+  --border-strong: #c7c7cc;
+  --accent-color: #0071e3;
+  --score-color: #0071e3;
+  --score-glow: rgb(0 113 227 / 18%);
+  --danger: #ff3b30;
+  background: var(--bg-main);
+}
+
+[data-theme="premium"][data-mode="dark"] {
+  --bg-main: #000000;
+  --panel-bg: #1c1c1e;
+  --drawer-bg: #2c2c2e;
+  --input-bg: #3a3a3c;
+  --text-primary: #f5f5f7;
+  --text-muted: #98989d;
+  --border-soft: #38383a;
+  --border-strong: #545456;
+  --accent-color: #0a84ff;
+  --score-color: #0a84ff;
+  --score-glow: rgb(10 132 255 / 30%);
+  --danger: #ff453a;
+  background: var(--bg-main);
+}
+
+/* CYBERdark neon */
+
+[data-theme="cyber"][data-mode="light"] {
+  --bg-main: #e8fff5;
+  --panel-bg: #f0fff8;
+  --drawer-bg: #e0faef;
+  --input-bg: #ffffff;
+  --text-primary: #001a0d;
+  --text-muted: #2a6b4a;
+  --border-soft: #a0dfc0;
+  --border-strong: #00c86e;
+  --accent-color: #007a42;
+  --score-color: #005c31;
+  --score-glow: rgb(0 122 66 / 20%);
+  --danger: #ff0055;
+  background: var(--bg-main);
+}
+
+[data-theme="cyber"][data-mode="dark"] {
+  --bg-main: #020d08;
+  --panel-bg: #041a0e;
+  --drawer-bg: #061f10;
+  --input-bg: #082614;
+  --text-primary: #00ff88;
+  --text-muted: #00cc6a;
+  --border-soft: #00441e;
+  --border-strong: #00882e;
+  --accent-color: #00ff88;
+  --score-color: #00ff88;
+  --score-glow: rgb(0 255 136 / 45%);
+  --danger: #ff0055;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(0 255 136 / 8%), transparent 50%),
+    radial-gradient(circle at 20% 80%, rgb(0 200 100 / 6%), transparent 40%),
+    var(--bg-main);
+}
+
+/* STADIUM feel for match night */
+  
+[data-theme="stadium"][data-mode="light"] {
   --bg-main: #f0f3ee;
   --panel-bg: #ffffff;
   --drawer-bg: #eef3ec;
@@ -11,19 +155,10 @@
   --score-color: #173f33;
   --score-glow: rgb(23 63 51 / 16%);
   --danger: #dc3545;
-
-  font-family: 'Trebuchet MS', 'Gill Sans', 'Segoe UI', sans-serif;
-  line-height: 1.35;
-  font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
   background: var(--bg-main);
 }
 
-:root[data-theme='dark'] {
+[data-theme="stadium"][data-mode="dark"] {
   --bg-main: #080808;
   --panel-bg: #111111;
   --drawer-bg: #151515;
@@ -36,34 +171,8 @@
   --score-color: #d6bf7f;
   --score-glow: rgb(171 143 71 / 38%);
   --danger: #dc3545;
-
   background:
     radial-gradient(circle at 14% 8%, rgb(171 143 71 / 12%), transparent 36%),
     radial-gradient(circle at 82% 88%, rgb(171 143 71 / 9%), transparent 34%),
     var(--bg-main);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  margin: 0;
-  width: 100vw;
-  height: 100dvh;
-  font-size: 16px;
-  overflow: hidden;
-  position: fixed; /* critical for mobile /AM */
-}
-
-body {
-  color: var(--text-primary);
-}
-
-button,
-input,
-select {
-  font-family: inherit;
 }
