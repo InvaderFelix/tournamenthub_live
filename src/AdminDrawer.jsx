@@ -1,25 +1,34 @@
 import { useState, useEffect } from 'react'
-import { PinGate } from './lib/pinLogin.jsx'
+import { PinGate } from './lib/PinLogin.jsx'
 import './App.css'
 
-export function AdminDrawer({ open, onClose, onCreateMatch, onUpdateMatch, error, unlocked, onUnlock, currentMatch }) {
+const emptyForm = {
+  team_1_name: '',
+  team_2_name: '',
+  season_name: '',
+  round_number: '',
+  venue_name: '',
+  pitch_number: '',
+  game_schedule: '',
+  started_at: null,
+  team_1_uniform_colour: '#ff0000',
+  team_2_uniform_colour: '#0000ff',
+}
+
+const emptyGoal = {
+  team_id: 1,
+  player_name: '',
+  player_number: '',
+  goal_time: '',
+}
+
+export function AdminDrawer({ open, onClose, onCreateMatch, onUpdateMatch,
+  error, unlocked, onUnlock, currentMatch, onCreateGoal }) {
+
   const [mode, setMode] = useState('create')
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
-
-  const emptyForm = {
-    team_1_name: '',
-    team_2_name: '',
-    season_name: '',
-    round_number: '',
-    venue_name: '',
-    pitch_number: '',
-    game_schedule: '',
-    started_at: null,
-    team_1_uniform_colour: '#ff0000',
-    team_2_uniform_colour: '#0000ff',
-  }
-
+  const [goalForm, setGoalForm] = useState(emptyGoal)
   const [form, setForm] = useState(emptyForm)
 
   // populate form when switching to edit mode
@@ -45,6 +54,29 @@ export function AdminDrawer({ open, onClose, onCreateMatch, onUpdateMatch, error
 
   function updateField(field, value) {
     setForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  function updateGoalField(field, value) {
+    setGoalForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  async function handleGoalSubmit(e) {
+    e.preventDefault()
+    if (submitting) return
+
+    setSubmitting(true)
+    setSuccess(false)
+
+    await onCreateGoal?.({
+      ...goalForm,
+      team_id: Number(goalForm.team_id),
+      player_number: Number(goalForm.player_number),
+      goal_time: goalForm.goal_time ? new Date(goalForm.goal_time) : null,
+    })
+
+    setSubmitting(false)
+    setSuccess(true)
+    setGoalForm(emptyGoal)
   }
 
   async function handleSubmit(e) {
@@ -78,26 +110,21 @@ export function AdminDrawer({ open, onClose, onCreateMatch, onUpdateMatch, error
     setSuccess(true)
   }
 
+  const modeToggle = (
+    <div className="drawer-mode-toggle">
+      <button type="button" className={mode === 'create' ? 'active' : ''}
+        onClick={() => { setMode('create'); setSuccess(false) }}>Create</button>
+      <button type="button" className={mode === 'edit' ? 'active' : ''}
+        onClick={() => { setMode('edit'); setSuccess(false) }}>Edit</button>
+      <button type="button" className={mode === 'goals' ? 'active' : ''}
+        onClick={() => { setMode('goals'); setSuccess(false) }}>Log Goals</button>
+    </div>
+  )
+
   const formContent = (
     <form onSubmit={handleSubmit}>
       <div className="drawer-spacer" />
-
-      <div className="drawer-mode-toggle">
-        <button
-          type="button"
-          className={mode === 'create' ? 'active' : ''}
-          onClick={() => { setMode('create'); setSuccess(false) }}
-        >
-          Create
-        </button>
-        <button
-          type="button"
-          className={mode === 'edit' ? 'active' : ''}
-          onClick={() => { setMode('edit'); setSuccess(false) }}
-        >
-          Edit
-        </button>
-      </div>
+      {modeToggle}
 
       <label className="form-field">
         <span>Home Team</span>
@@ -145,7 +172,7 @@ export function AdminDrawer({ open, onClose, onCreateMatch, onUpdateMatch, error
         />
       </label>
 
-      <div className="half-widths round-pitch">
+      <div className="half-widths">
         <label className="form-field">
           <span>Round Number</span>
           <input
@@ -206,13 +233,64 @@ export function AdminDrawer({ open, onClose, onCreateMatch, onUpdateMatch, error
     </form>
   )
 
+  const goalContent = (
+    <form onSubmit={handleGoalSubmit}>
+      <div className="drawer-spacer" />
+      {modeToggle}
+    
+      <label className="form-field">
+        <div className="half-widths">
+        </div>
+      </label>
+    
+      <label className="form-field">
+        <span>Player Name</span>
+        <input
+          placeholder="e.g. Jane Doe"
+          value={goalForm.player_name}
+          onChange={(e) => updateGoalField('player_name', e.target.value)}
+        />
+      </label>
+    
+      <label className="form-field">
+        <span>Player Number</span>
+        <input
+          type="number"
+          placeholder="e.g. 9"
+          value={goalForm.player_number}
+          onChange={(e) => updateGoalField('player_number', e.target.value)}
+        />
+      </label>
+    
+      <label className="form-field">
+        <span>Time (leave blank for automatic time)</span>
+        <input
+          type="text"
+          placeholder="e.g. 12:34"
+          value={goalForm.goal_time}
+          onChange={(e) => updateGoalField('goal_time', e.target.value)}
+        />
+      </label>
+    
+      {error && <p className="form-error">{error}</p>}
+      {success && <p className="form-success">Goal logged!</p>}
+      <button
+        type="submit"
+        disabled={submitting || success}
+        className={submitting || success ? 'btn-disabled' : ''}
+      >
+        {submitting ? 'Logging...' : success ? 'Goal Logged!' : 'Log Goal'}
+      </button>
+    </form>
+  )
+
   return (
     <>
       {open && <div className="drawer-overlay" onClick={onClose} />}
       <div className={`admin-drawer ${open ? 'open' : ''}`}>
         {!unlocked
           ? <PinGate onUnlock={onUnlock} />
-          : formContent
+          : mode === 'goals' ? goalContent : formContent
         }
       </div>
     </>

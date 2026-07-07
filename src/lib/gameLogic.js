@@ -1,6 +1,5 @@
-// don't forget that score is a projection of the source of truth
-// which is goals, and you'll break something if you rename that
-// part of your UI for the tenth time~
+// don't forget that score is a projection of the source of truth which is goals,
+// and you'll break something if you rename that part of your UI for the tenth time~
 // AM
 export function computeScore(goals) {
   return goals.reduce(
@@ -13,6 +12,31 @@ export function computeScore(goals) {
   )
 }
 
+export function formatGoalTime(goal, match) {
+  // manual minute override takes precedence
+  if (goal.goal_time != null) {
+    return `${goal.goal_time}'`
+  }
+
+  if (!match?.started_at || !goal?.created_at) {
+    return `${goal.goal_time}'`
+  }
+
+  const start = new Date(match.started_at).getTime()
+  const goalTime = new Date(goal.created_at).getTime()
+
+  const pausedTotal = match.paused_total_ms ?? 0
+  // note: we can't know exactly how much pause time had elapsed at the moment
+  // of the goal, so we subtract total paused time as an approximation
+  // AM
+  const elapsedMs = Math.max(0, goalTime - start - pausedTotal)
+
+  const minutes = Math.floor(elapsedMs / 60000)
+  const seconds = Math.floor((elapsedMs % 60000) / 1000)
+
+  return `${minutes}'${String(seconds).padStart(2, '0')}"`
+}
+
 // display logic for the last goal scored, e.g. "23' John Doe (#9) for Team A"
 // remember to hook this up at some point in the UI, e.g. below the score or in a sidebar
 // AM
@@ -22,10 +46,11 @@ export function formatLatestGoal(goals, match) {
   }
 
   const latest = goals[goals.length - 1]
-  const teamName = latest.team_id === match.team1_id
-    ? match.team1_name
-    : match.team2_name
-  return `${latest.minute}' ${latest.player_name} (#${latest.player_number}) for ${teamName}`
+  const teamName = latest.team_id === 1
+    ? match.team_1_name
+    : match.team_2_name
+
+  return `${formatGoalTime(latest, match)} ${latest.player_name} (#${latest.player_number}) for ${teamName}`
 }
 
 export function getElapsedMs(match, now = Date.now()) {

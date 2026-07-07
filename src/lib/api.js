@@ -47,14 +47,14 @@ export async function fetchGoals(matchId) {
     .select(`
       id,
       match_id,
-      minute,
+      goal_time,
       team_id,
       player_name,
       player_number,
       created_at
     `)
     .eq('match_id', matchId)
-    .order('minute', { ascending: true })
+    .order('goal_time', { ascending: true })
 
   if (error) {
     console.error('fetchGoals error:', error)
@@ -118,7 +118,7 @@ export function subscribeToUpdates(matchId, onGoalsUpdate, onMatchUpdate) {
   }
 }
 
-export async function fetchMatches() {
+export async function fetchMatches() { // match selector
   const { data, error } = await supabase
     .from('matches')
     .select(`
@@ -179,6 +179,27 @@ export async function updateMatch(matchId, updates) {
 
   if (error) {
     console.error('updateMatch error:', error)
+    return { data: null, error }
+  }
+
+  return { data, error: null }
+}
+
+export async function createGoal(matchId, goalData) {
+  const { data, error } = await supabase
+    .from('goals')
+    .insert([{
+      match_id: matchId,
+      goal_time: goalData.goal_time,
+      team_id: goalData.team_id,
+      player_name: goalData.player_name,
+      player_number: goalData.player_number,
+    }])
+    .select()
+    .maybeSingle()
+
+  if (error) {
+    console.error('createGoal error:', error)
     return { data: null, error }
   }
 

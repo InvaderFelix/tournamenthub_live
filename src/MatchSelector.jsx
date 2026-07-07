@@ -36,7 +36,7 @@ export function MatchSelector({ onSelectMatch }) {
             <span className="match-card-teams">{match.team_1_name} vs {match.team_2_name}</span>
             <span className="match-card-meta">{match.game_schedule}</span>
             <span className="match-card-meta">{match.venue_name} — Pitch {match.pitch_number}</span>
-            <span className={`match-card-status status-${match.game_status}`}>{match.game_status}</span>
+            <span className="match-card-status">{match.game_status}</span>
           </button>
         ))}
       </div>

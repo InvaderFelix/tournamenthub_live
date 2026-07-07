@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { Timer } from './lib/Timer'
 import { MatchSelector } from './MatchSelector'
 import { AdminDrawer } from './AdminDrawer'
-import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates, createMatch, updateMatch, checkMatchExists } from './lib/api'
-import { computeScore, formatLatestGoal } from './lib/gameLogic'
+import { fetchMatch, fetchGoals, fetchParticipants, subscribeToUpdates,
+  createMatch, updateMatch, checkMatchExists, createGoal } from './lib/api'
+import { computeScore, formatLatestGoal, formatGoalTime } from './lib/gameLogic'
 
 
 // placeholder match data
@@ -13,7 +14,7 @@ const initialMatch = {
   id: null,
   team_1_name: 'Hometown United FC',
   team_2_name: 'Away City Rangers',
-  game_status: 'Pending',
+  game_status: 'pending',
   started_at: null, // default null, use Date.now() to test
   season_name: 'Season Name',
   round_number: '1',
@@ -96,7 +97,7 @@ useEffect(() => {
   }
 }, [matchId])
 
-// handle form submission from adminDrawer
+// Beginning of AdminDrawer.jsx form submission handlers
 async function handleCreateMatch(formData) {
   setCreateError(null)
 
@@ -127,6 +128,14 @@ async function handleUpdateMatch(formData) {
     setMatch(data)
   } else {
     setCreateError(error?.message || 'Failed to update match.')
+  }
+}
+
+async function handleCreateGoal(goalData) {
+  setCreateError(null)
+  const { data, error } = await createGoal(matchId, goalData)
+  if (!data) {
+    setCreateError(error?.message || 'Failed to log goal.')
   }
 }
 
@@ -177,6 +186,7 @@ if (view === 'selector') {
           onClose={() => setDrawerOpen(false)}
           onCreateMatch={handleCreateMatch}
           onUpdateMatch={handleUpdateMatch}
+          onCreateGoal={handleCreateGoal}
           error={createError}
           unlocked={unlocked}
           onUnlock={() => setUnlocked(true)}
@@ -198,13 +208,7 @@ if (view === 'selector') {
           <button
             type="button"
             className="hamburger-btn"
-              onClick={() => {
-              if (unlocked) {
-                setDrawerOpen(open => !open)
-              } else {
-                setDrawerOpen(open => !open)
-              }
-            }}
+              onClick={() => setDrawerOpen(open => !open)}
           >
             <span />
             <span />
@@ -221,7 +225,7 @@ if (view === 'selector') {
               <Timer match={match} />
             ) : ( '00:00' )}
 
-          </div>
+        </div>
           <div className="team">{/*<span className="team-suburb">{match.team_2_suburb}</span>*/}{match.team_2_name}</div>
           <div className="score">{score.team1}</div>
           <div className="status">{match.game_status}</div>
@@ -246,33 +250,31 @@ if (view === 'selector') {
         <div className="goal-summary-panel">
 
           <div className="goal-summary-text-column text-left">
-            Placeholder<br />
-            (1'01")<br />
-            (2'01")<br />
-            (3'01")<br />
+            Time
+            {goals.map(goal => (
+              <div key={goal.id}>
+                {formatGoalTime(goal, match)} — {goal.player_name} #{goal.player_number}
+              </div>
+            ))}
           </div>
 
           <div className="goal-summary-text-column text-left">
-              {/* {goals.map((goal) => ( */}
-              Placeholder<br />
-              #5 Mia H<br />
-              #10 Zara Q<br />
-              #42 Poppy R<br />
+            {/* {goals.map((goal) => ( */}
+            Player
           </div>
 
           <div className="goal-summary-text-column text-right">
-              {/* {goals.map((goal) => ( */}
-              Placeholder<br />
-              Zoe V #6<br />
-              Jane D #9<br />
-              Kat G #67<br />
+            {/* {goals.map((goal) => ( */}
+            Player  
           </div>
 
           <div className="goal-summary-text-column text-right">
-            Placeholder<br />
-            (1'00")<br />
-            (2'00")<br />
-            (3'00")<br />
+            Time
+            {goals.map(goal => (
+              <div key={goal.id}>
+                {formatGoalTime(goal, match)} — {goal.player_name} #{goal.player_number}
+              </div>
+            ))}
           </div>
 
         </div>
@@ -282,25 +284,25 @@ if (view === 'selector') {
       <div className="players-section-header">
         
         <div>
-            <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_2_uniform_colour }}>
+            <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_1_uniform_colour }}>
               <path d="M20 4 L8 14 L14 24 L20 20 L20 56 L44 56 L44 20 L50 24 L56 14 L44 4 L38 4 C38 8 34 10 32 10 C30 10 26 8 26 4 Z" />
             </svg>
         </div>
         
         <div>
-        Placeholder<br />
-        11 Starting<br />
-        4 Substitutes
+            {/* {insertthing} */}
+          Starting 11<br />
+          Substitutes 2
         </div>
 
         <div>
-        Placeholder<br />
-        11 Starting<br />
-        3 Substitutes
+          {/* {insertthing} */}
+          Starting 11<br />
+          Substitutes 3
         </div>
 
         <div>
-          <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_1_uniform_colour }}>
+          <svg className="jersey-icon" viewBox="0 0 64 64" style={{ fill: match.team_2_uniform_colour }}>
             <path d="M20 4 L8 14 L14 24 L20 20 L20 56 L44 56 L44 20 L50 24 L56 14 L44 4 L38 4 C38 8 34 10 32 10 C30 10 26 8 26 4 Z" />
           </svg>
         </div>
@@ -309,20 +311,14 @@ if (view === 'selector') {
 
       <section className="players-section">
         <div className="players-section-panel">
-            <div className="text-left">
-              Placeholder<br />
-              #5 Mia H<br />
-              #10 Zara Q<br />
-              #42 Poppy R<br />
-            </div>
+          <div className="text-left">
+            {/* {team1Players.map(player => ( */}
+          </div>
         </div>
 
         <div className="players-section-panel">
           <div className="text-right">
-            Placeholder<br />
-            Zoe V #6<br />
-            Jane D #9<br />
-            Katarina G #67<br />
+            {/* {team2Players.map(player => ( */}
           </div>
         </div>
       </section>
